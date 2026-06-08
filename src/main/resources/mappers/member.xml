@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+window - preferences - Maven - "Download Artifact Javadoc" check 
+ -->
+<mapper namespace="com.care.boot.member.IMemberMapper">
+
+	<resultMap type="com.care.boot.member.MemberDTO" id="dbQuiz">
+		<id column="id" property="id"/>
+		<result column="pw" property="pw"/>
+		<result column="username" property="userName"/>
+		<result column="address" property="address"/>
+		<result column="mobile" property="mobile"/>
+	</resultMap>
+	
+	<insert id="registProc">
+		INSERT INTO member 
+		VALUES(#{id}, #{pw}, #{userName}, #{postcode},
+		 #{address},#{detailAddress}, #{mobile})
+	</insert>
+	
+	<select id="login" resultMap="dbQuiz">
+		SELECT * FROM member WHERE id=#{id}
+	</select>
+	
+	
+	<select id="memberInfo" resultMap="dbQuiz">
+	<choose>
+		<when test="select == 'id'">
+			SELECT AAA.* 
+			FROM (SELECT ROWNUM() as r, id, username, mobile FROM member 
+			WHERE id like CONCAT('%', #{search}, '%') )AAA 
+			WHERE AAA.r BETWEEN #{begin} AND #{end}</when>
+		<when test="select == 'mobile'">
+			SELECT AAA.* 
+			FROM (SELECT ROWNUM() as r, id, username, mobile FROM member 
+			WHERE mobile like CONCAT('%', #{search}, '%'))AAA  
+			WHERE AAA.r BETWEEN #{begin} AND #{end}
+		</when>
+		<otherwise>
+			SELECT AAA.* 
+			FROM (SELECT ROWNUM() as r, id, username, mobile FROM member)AAA 
+			WHERE AAA.r BETWEEN #{begin} AND #{end}
+		</otherwise>
+	</choose>
+	</select>
+	<select id="totalCount" >
+		<choose>
+			<when test="select == 'id'">
+				SELECT count(id) FROM member WHERE id like CONCAT('%',#{search},'%')
+			</when>
+			<when test="select == 'mobile'">
+				SELECT count(id) FROM member WHERE mobile like CONCAT('%',#{search},'%')
+			</when>
+			<otherwise>
+				SELECT count(id) FROM member
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="updateProc">
+		UPDATE member 
+		SET pw=#{pw}, mobile=#{mobile}, username=#{userName}, address=#{address} 
+		WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteProc">
+		DELETE FROM member WHERE id=#{id}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
