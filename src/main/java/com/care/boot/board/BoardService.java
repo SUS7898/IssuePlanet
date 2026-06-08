@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
-
+import jakarta.servlet.ServletContext; // 추가
+import org.springframework.beans.factory.annotation.Autowired; // 기존
 @Service
 public class BoardService {
 
     @Autowired private BoardMapper mapper;
+    @Autowired private ServletContext servletContext; // 추가: 프로젝트 경로를 알기 위해 필요
 
     // 카테고리별 페이징 처리 리스트
     public void boardForm(String cp, String category, Model model) {
@@ -39,21 +41,30 @@ public class BoardService {
 
     // 게시글 저장
     public void boardWriteProc(BoardDTO board, MultipartFile file) {
-        if(file != null && !file.isEmpty()) { // 파일이 있을 때만 처리
+        if(file != null && !file.isEmpty()) {
+            // 1. 현재 실행 중인 프로젝트 루트 경로를 시스템에서 자동으로 가져옴
+            String projectRoot = System.getProperty("user.dir");
+            
+            // 2. 프로젝트 폴더의 바로 상위 폴더에 uploads 폴더 지정
+            File uploadDir = new File(projectRoot, "../uploads");
+            
+            if(!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            
             String fileName = file.getOriginalFilename();
-            String path = "D:/temp/" + fileName; 
+            File saveFile = new File(uploadDir, fileName);
+            
             try {
-                file.transferTo(new File(path));
+                file.transferTo(saveFile);
                 board.setFileName(fileName); 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        
         board.setWriteDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         mapper.boardWriteProc(board);
     }
-
     // 상세 내용 및 댓글 로드
     public void boardContent(int no, Model model) {
         mapper.incHit(no);

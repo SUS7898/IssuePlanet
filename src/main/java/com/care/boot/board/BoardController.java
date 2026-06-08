@@ -2,6 +2,8 @@ package com.care.boot.board;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +26,8 @@ public class BoardController {
 
     @Autowired private BoardService service;
     @Autowired private HttpSession session;
+    // 1. 클래스 상단에 ServletContext 주입 추가
+    @Autowired private ServletContext servletContext;
 
     // 게시판 메인 리스트로 이동
     @GetMapping("/boardForm")
@@ -91,15 +97,21 @@ public class BoardController {
         return response;
     }
     
+
+
+    // 2. display 메서드 수정
     @GetMapping("/display")
     public ResponseEntity<Resource> display(@RequestParam("fileName") String fileName) {
-        String path = "D:/temp/" + fileName;
-        Resource resource = new FileSystemResource(path);
+        // 저장할 때와 동일하게 프로젝트 루트 기준으로 상위 uploads 폴더를 찾음
+        String projectRoot = System.getProperty("user.dir");
+        File uploadDir = new File(projectRoot, "../uploads");
+        File file = new File(uploadDir, fileName);
         
-        if(!resource.exists()) return ResponseEntity.notFound().build();
+        if (!file.exists()) return ResponseEntity.notFound().build();
         
+        Resource resource = new FileSystemResource(file);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "image/png") // 필요시 jpeg 등으로 확장자 구분 로직 추가
+                .header(HttpHeaders.CONTENT_TYPE, "image/png")
                 .body(resource);
     }
 }
