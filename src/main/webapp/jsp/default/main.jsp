@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<c:import url="default/header.jsp"/>
 
 <div class="container" style="text-align: center; padding: 60px 20px;">
     <h1 style="color: #1e293b; font-size: 36px; margin-bottom: 10px;">🪐 Welcome to IssuePlanet!</h1>
@@ -17,5 +16,3 @@
         </a>
     </div>
 </div>
-
-<c:import url="default/footer.jsp"/>

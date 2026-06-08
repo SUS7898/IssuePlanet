@@ -5,52 +5,75 @@
     
 <mapper namespace="com.care.boot.board.BoardMapper">
 
-	<resultMap type="com.care.boot.board.BoardDTO" id="board_quiz">
-		<result column="writedate" property="writeDate"/>
-		<result column="filename" property="fileName"/>
-	</resultMap>
+    <select id="boardForm" resultType="com.care.boot.board.BoardDTO">
+        SELECT * FROM board 
+        WHERE category = #{category}
+        ORDER BY no DESC 
+        LIMIT #{begin}, #{end}
+    </select>
 
-	<select id="boardForm" resultMap="board_quiz">
-		SELECT B.* FROM (
-		SELECT ROWNUM() as r, A.* FROM (
-		SELECT board.* FROM board ORDER BY no DESC)A 
-		)B 
-		WHERE B.r BETWEEN #{begin} AND #{end}
-	</select>
-	
-	<select id="totalCount">
-		SELECT count(no) FROM board
-	</select>
+    <select id="boardCount" resultType="int">
+        SELECT count(no) FROM board WHERE category = #{category}
+    </select>
 
-	<insert id="boardWriteProc">
-		<selectKey order="BEFORE" keyProperty="no" resultType="int">
-			SELECT NVL(max(no), 0)+1 FROM board
-		</selectKey>
-		INSERT INTO board 
-		VALUES(#{no}, #{title}, #{content}, #{id}, #{writeDate}, 0, #{fileName})
-	</insert>
-	
-	<select id="boardContent" resultMap="board_quiz">
-		SELECT * FROM board WHERE no=#{n}
-	</select>
-	
-	<update id="incrementHits">
-		UPDATE board SET hits=hits+1 WHERE no=#{n}
-	</update>
-	
-	<select id="boardDownload">
-		SELECT filename FROM board WHERE no=#{n}
-	</select>
-	
-	<update id="boardModifyProc">
-		UPDATE board SET title=#{title}, content=#{content} WHERE no=#{no}
-	</update>
-	
-	<delete id="boardDeleteProc">
-		DELETE FROM board WHERE no=#{n}
-	</delete>
+    <insert id="boardWriteProc">
+        INSERT INTO board(category, title, content, id, writedate, hit, filename, likes)
+        VALUES(#{category}, #{title}, #{content}, #{id}, #{writeDate}, 0, #{fileName}, 0)
+    </insert>
+
+    <select id="boardContent" resultType="com.care.boot.board.BoardDTO">
+        SELECT * FROM board WHERE no = #{no}
+    </select>
+
+    <update id="incHit">
+        UPDATE board SET hit = hit + 1 WHERE no = #{no}
+    </update>
+
+    <update id="boardModifyProc">
+        UPDATE board 
+        SET title = #{title}, content = #{content} 
+        WHERE no = #{no}
+    </update>
+
+    <delete id="boardDeleteProc">
+        DELETE FROM board WHERE no = #{no}
+    </delete>
+
+    <insert id="insertReply">
+        INSERT INTO reply(board_no, id, content, writedate)
+        VALUES(#{boardNo}, #{id}, #{content}, #{writeDate})
+    </insert>
+
+    <select id="getReplies" resultType="com.care.boot.board.ReplyDTO">
+        SELECT reply_no as replyNo, board_no as boardNo, id, content, writedate as writeDate 
+        FROM reply 
+        WHERE board_no = #{boardNo} 
+        ORDER BY reply_no ASC
+    </select>
+    
+    <delete id="deleteReply">
+        DELETE FROM reply WHERE reply_no = #{replyNo}
+    </delete>
+
+    <select id="checkLike" resultType="int">
+        SELECT count(*) FROM board_like WHERE board_no = #{boardNo} AND id = #{id}
+    </select>
+    
+    <insert id="insertLike">
+        INSERT INTO board_like(board_no, id) VALUES(#{boardNo}, #{id})
+    </insert>
+    
+    <delete id="deleteLike">
+        DELETE FROM board_like WHERE board_no = #{boardNo} AND id = #{id}
+    </delete>
+    
+    <update id="updateBoardLike">
+        UPDATE board 
+        SET likes = (SELECT count(*) FROM board_like WHERE board_no = #{no}) 
+        WHERE no = #{no}
+    </update>
+
 </mapper>
-
 
 
 

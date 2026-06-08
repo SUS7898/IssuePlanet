@@ -1,5 +1,6 @@
 package com.care.boot.board;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class BoardService {
@@ -36,9 +38,18 @@ public class BoardService {
     }
 
     // 게시글 저장
-    public void boardWriteProc(BoardDTO board) {
+    public void boardWriteProc(BoardDTO board, MultipartFile file) {
+        if(!file.isEmpty()) {
+            String fileName = file.getOriginalFilename();
+            String path = "D:/issueplanet/uploads/" + fileName;
+            try {
+                file.transferTo(new File(path));
+                board.setFileName(fileName); // 파일명을 DB에 저장할 DTO에 세팅
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         board.setWriteDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        if(board.getFileName() == null) board.setFileName("");
         mapper.boardWriteProc(board);
     }
 

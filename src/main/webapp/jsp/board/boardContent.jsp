@@ -18,7 +18,11 @@
     <div style="min-height: 250px; font-size: 16px; line-height: 1.8; color: #334155;">
         ${board.content}
     </div>
-
+<c:if test="${not empty board.fileName}">
+    <div style="margin: 20px 0; text-align: center;">
+        <img src="/uploads/${board.fileName}" style="max-width: 100%; height: auto; border-radius: 8px;">
+    </div>
+</c:if>
     <div style="text-align: center; margin: 50px 0;">
         <button onclick="toggleLike(${board.no})" id="likeBtn" 
                 style="padding: 12px 30px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 30px; transition: 0.3s;
@@ -43,6 +47,7 @@
                 </div>
             </c:forEach>
         </div>
+        
         
         <c:choose>
             <c:when test="${not empty sessionScope.id}">

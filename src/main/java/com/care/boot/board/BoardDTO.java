@@ -1,17 +1,15 @@
 package com.care.boot.board;
-
 public class BoardDTO {
     private int no;
-    private String category; // 연예 뉴스(news), 드라마/영화(drama), 자유썰(talk) 구분용
+    private String category;
     private String title;
     private String content;
     private String id;
     private String writeDate;
     private int hit;
     private String fileName;
-    private int likes; // 게시글 총 좋아요 수
+    private int likes;
 
-    // Getter & Setter
     public int getNo() { return no; }
     public void setNo(int no) { this.no = no; }
     public String getCategory() { return category; }
