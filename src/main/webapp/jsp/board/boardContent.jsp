@@ -18,7 +18,6 @@
     <div style="min-height: 250px; font-size: 16px; line-height: 1.8; color: #334155;">
         ${board.content}
     </div>
-        <img src="/board/display?fileName=${board.fileName}">
 
 <c:if test="${not empty board.fileName}">
     <div style="margin: 20px 0; text-align: center;">
