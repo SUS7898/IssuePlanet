@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/board")
 public class BoardController {
 
     @Autowired private BoardService service;
+    @Autowired private HttpSession session;
 
     // 게시판 메인 리스트로 이동
     @GetMapping("/boardForm")
@@ -32,11 +34,11 @@ public class BoardController {
 
     // 글 등록 처리
     @PostMapping("/boardWriteProc")
-    public String boardWriteProc(BoardDTO board, HttpSession session) {
+    public String boardWriteProc(BoardDTO board, @RequestParam("file") MultipartFile file) {
         String id = (String) session.getAttribute("id");
         if(id == null) return "redirect:/member/login";
         board.setId(id);
-        service.boardWriteProc(board);
+        service.boardWriteProc(board, file);
         return "redirect:/board/boardForm?category=" + board.getCategory();
     }
 

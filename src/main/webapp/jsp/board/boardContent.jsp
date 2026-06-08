@@ -20,7 +20,7 @@
     </div>
 <c:if test="${not empty board.fileName}">
     <div style="margin: 20px 0; text-align: center;">
-        <img src="/uploads/${board.fileName}" style="max-width: 100%; height: auto; border-radius: 8px;">
+       <img src="/uploads/${board.fileName}" style="max-width: 100%;">
     </div>
 </c:if>
     <div style="text-align: center; margin: 50px 0;">

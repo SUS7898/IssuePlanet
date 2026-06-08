@@ -39,16 +39,17 @@ public class BoardService {
 
     // 게시글 저장
     public void boardWriteProc(BoardDTO board, MultipartFile file) {
-        if(!file.isEmpty()) {
+        if(file != null && !file.isEmpty()) { // 파일이 있을 때만 처리
             String fileName = file.getOriginalFilename();
-            String path = "D:/issueplanet/uploads/" + fileName;
+            String path = "D:/temp/" + fileName; 
             try {
                 file.transferTo(new File(path));
-                board.setFileName(fileName); // 파일명을 DB에 저장할 DTO에 세팅
+                board.setFileName(fileName); 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        
         board.setWriteDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         mapper.boardWriteProc(board);
     }
