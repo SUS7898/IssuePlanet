@@ -1,46 +1,33 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:import url="/header" />
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<c:import url="../default/header.jsp"/>
 
-<div align="center">
-	<form action="boardWriteProc" method='post' enctype="multipart/form-data">
-		<table>
-			<caption>
-				<font size="5"><b>게시글 등록</b></font>
-			</caption>
-			<tr>
-				<th width="100px">제목</th>
-				<td><input style="width: 100%;" type="text" name="title"></td>
-			</tr>
-			<tr>
-				<th>내용</th>
-				<td>
-					<textarea style="width: 100%;" rows="10" cols="30" name="content"></textarea>
-				</td>
-			</tr>
-			<tr>
-				<th>파일첨부</th>
-				<td><input type="file" name="upfile"></td>
-			</tr>
-			<tr>
-				<td colspan="2" align="center">
-					<input type="submit" value="글쓰기"> 
-					<input type="button" value="목록"	 onclick="location.href='boardForm'">
-				</td>
-			</tr>
-		</table>
-	</form>
+<div class="container">
+    <h2 style="margin-top: 0; margin-bottom: 25px; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">✍️ 게시글 작성</h2>
+    <form action="/board/boardWriteProc" method="post">
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600; color: #475569;">게시판 카테고리</label>
+            <select name="category" class="form-control" style="width: 200px; display: block;">
+                <option value="news">📰 K-POP/연예 뉴스</option>
+                <option value="drama">🎬 드라마/영화 리뷰</option>
+                <option value="talk">💬 자유 썰 게시판</option>
+            </select>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600; color: #475569;">제목</label>
+            <input type="text" name="title" class="form-control" placeholder="제목을 입력하세요." required>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <label style="font-weight: 600; color: #475569;">내용</label>
+            <textarea name="content" class="form-control" rows="15" placeholder="내용을 입력하세요." required></textarea>
+        </div>
+        
+        <div style="text-align: center; display: flex; gap: 10px; justify-content: center;">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 40px; font-size: 16px;">등록하기</button>
+            <button type="button" onclick="history.back()" class="btn btn-secondary" style="padding: 12px 40px; font-size: 16px;">취소</button>
+        </div>
+    </form>
 </div>
-<c:import url="/footer" />
-
-
-
-
-
-
-
-
-
-
-
-
+</body>
+</html>

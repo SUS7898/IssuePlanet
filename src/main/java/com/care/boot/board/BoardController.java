@@ -1,112 +1,84 @@
 package com.care.boot.board;
 
+import java.util.HashMap;
+import java.util.Map;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/board")
 public class BoardController {
-	@Autowired private BoardService service;
-	@Autowired private HttpSession session;
-	
-	@RequestMapping("boardForm")
-	public String boardForm(Model model,
-			@RequestParam(value="currentPage", required = false)String cp) {
-		service.boardForm(cp, model);
-		return "board/boardForm";
-	}
-	
-	
-	@RequestMapping("boardWrite")
-	public String boardWrite() {
-		String sessionId = (String) session.getAttribute("id");
-		if(sessionId == null)
-			return "redirect:login";
-		return "board/boardWrite";
-	}
-	
-	@PostMapping("boardWriteProc")
-	public String boardWriteProc(MultipartHttpServletRequest multi) {
-		String sessionId = (String) session.getAttribute("id");
-		if(sessionId == null)
-			return "redirect:login";
-		String path = service.boardWriteProc(multi);
-		return path;
-	}
-	
-	@RequestMapping("boardContent")
-	public String boardContent(String no, Model model) {
-		BoardDTO board = service.boardContent(no);
-		if(board == null) {
-			return "redirect:boardForm";
-		}
-		
-		model.addAttribute("board", board);
-		return "board/boardContent";
-	}
-	
-	@RequestMapping("boardDownload")
-	public void boardDownload(String no, HttpServletResponse response) {
-		service.boardDownload(no, response);
-	}
-	
-	@RequestMapping("boardModify")
-	public String boardModify(String no, Model model) {
-		String sessionId = (String) session.getAttribute("id");
-		if(sessionId == null)
-			return "redirect:login";
-		String path = service.boardModify(no, model);
-		return path;
-	}
-	
-	@PostMapping("boardModifyProc")
-	public String boardModifyProc(BoardDTO board, RedirectAttributes ra) {
-		String sessionId = (String) session.getAttribute("id");
-		if(sessionId == null)
-			return "redirect:login";
-		String msg = service.boardModifyProc(board);
-		ra.addFlashAttribute("msg", msg);
-		
-		if(msg.equals("게시글 수정 성공"))
-			return "redirect:boardContent?no="+board.getNo();
-		
-		return "redirect:boardModify?no="+board.getNo();
-	}
-	
-	@RequestMapping("boardDeleteProc")
-	public String boardDeleteProc(String no) {
-		String sessionId = (String) session.getAttribute("id");
-		if(sessionId == null)
-			return "redirect:login";
-		
-		String msg = service.boardDeleteProc(no);
-		if(msg.equals("작성자만 삭제 할 수 있습니다."))
-			return "redirect:boardContent?no="+no;
-		
-		return "redirect:boardForm";
-	}
-	
+
+    @Autowired private BoardService service;
+
+    // 게시판 메인 리스트로 이동
+    @GetMapping("/boardForm")
+    public String boardForm(@RequestParam(value="category", defaultValue="news") String category,
+                            @RequestParam(value="currentPage", defaultValue="1") String currentPage,
+                            Model model) {
+        service.boardForm(currentPage, category, model);
+        model.addAttribute("category", category);
+        return "board/boardForm";
+    }
+
+    // 글쓰기 폼 이동
+    @GetMapping("/boardWrite")
+    public String boardWrite() {
+        return "board/boardWrite";
+    }
+
+    // 글 등록 처리
+    @PostMapping("/boardWriteProc")
+    public String boardWriteProc(BoardDTO board, HttpSession session) {
+        String id = (String) session.getAttribute("id");
+        if(id == null) return "redirect:/member/login";
+        board.setId(id);
+        service.boardWriteProc(board);
+        return "redirect:/board/boardForm?category=" + board.getCategory();
+    }
+
+    // 본문 상세보기 (좋아요 유무 체크 바인딩)
+    @GetMapping("/boardContent")
+    public String boardContent(@RequestParam("no") int no, Model model, HttpSession session) {
+        service.boardContent(no, model);
+        
+        String id = (String) session.getAttribute("id");
+        if(id != null) {
+            boolean isLiked = service.checkLike(no, id);
+            model.addAttribute("isLiked", isLiked);
+        }
+        return "board/boardContent";
+    }
+
+    // 댓글 저장 라우터
+    @PostMapping("/replyWrite")
+    public String replyWrite(ReplyDTO reply, HttpSession session) {
+        String id = (String) session.getAttribute("id");
+        if(id != null) {
+            reply.setId(id);
+            service.insertReply(reply);
+        }
+        return "redirect:/board/boardContent?no=" + reply.getBoardNo();
+    }
+
+    // 좋아요 비동기 요청 API 토글
+    @ResponseBody
+    @PostMapping("/toggleLike")
+    public Map<String, Object> toggleLike(@RequestParam("no") int no, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        String id = (String) session.getAttribute("id");
+        
+        if(id == null) {
+            response.put("status", "login_required");
+            return response;
+        }
+        
+        int currentLikes = service.toggleLike(no, id);
+        response.put("status", "success");
+        response.put("likes", currentLikes);
+        return response;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
