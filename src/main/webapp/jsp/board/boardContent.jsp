@@ -18,10 +18,15 @@
     <div style="min-height: 250px; font-size: 16px; line-height: 1.8; color: #334155;">
         ${board.content}
     </div>
+        <img src="/board/display?fileName=${board.fileName}">
+
 <c:if test="${not empty board.fileName}">
     <div style="margin: 20px 0; text-align: center;">
-       <img src="/uploads/${board.fileName}" style="max-width: 100%;">
+        <img src="" id="boardImg" style="max-width: 100%; border-radius: 8px;">
     </div>
+    <script>
+        document.getElementById('boardImg').src = "/board/display?fileName=" + encodeURIComponent("${board.fileName}");
+    </script>
 </c:if>
     <div style="text-align: center; margin: 50px 0;">
         <button onclick="toggleLike(${board.no})" id="likeBtn" 
@@ -47,8 +52,7 @@
                 </div>
             </c:forEach>
         </div>
-        
-        
+
         <c:choose>
             <c:when test="${not empty sessionScope.id}">
                 <form action="/board/replyWrite" method="post" style="display: flex; gap: 10px;">

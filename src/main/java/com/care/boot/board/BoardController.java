@@ -4,11 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 @Controller
 @RequestMapping("/board")
 public class BoardController {
@@ -82,5 +89,17 @@ public class BoardController {
         response.put("status", "success");
         response.put("likes", currentLikes);
         return response;
+    }
+    
+    @GetMapping("/display")
+    public ResponseEntity<Resource> display(@RequestParam("fileName") String fileName) {
+        String path = "D:/temp/" + fileName;
+        Resource resource = new FileSystemResource(path);
+        
+        if(!resource.exists()) return ResponseEntity.notFound().build();
+        
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "image/png") // 필요시 jpeg 등으로 확장자 구분 로직 추가
+                .body(resource);
     }
 }
