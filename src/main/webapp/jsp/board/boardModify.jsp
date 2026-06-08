@@ -1,66 +1,28 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"    pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<c:import url="/header" />
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<c:import url="../default/header.jsp"/>
 
-<div align="center">
-
-<form action="boardModifyProc" method="post">
-	<input type="hidden" name="no" value="${board.no }" />
-	<h1>글 수정</h1>
-	<table border='1'>
-		<tr>
-			<th width="100">작성자</th>
-			<td width="200">${board.id }</td>
-			<th width="100">조회수</th>
-			<td width="200">${board.hits }</td>
-		</tr>
-		<tr>
-			<th>작성일</th>
-			<td>${board.writeDate }</td>
-			<th>다운로드</th>
-			<td>${board.fileName }</td>
-		</tr>
-		<tr>
-			<th>제목</th>
-			<td colspan="3">
-				<input style="width:100%;" type="text" name="title" value="${board.title }" />
-			</td>
-		</tr>
-		<tr>
-			<th>문서내용 수정</th>
-			<td colspan="3">
-				<textarea rows="10" cols="30" style="width:100%" name="content">${board.content }</textarea>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="4">
-				<button type="button" onclick="location.href='boardForm'">목록</button>
-				<input type="submit" value="수정">
-				<button type="button" onclick="history.back()">이전</button> 
-			</td>
-		</tr>
-	</table>
-</form>
+<div class="container">
+    <h2 style="margin-top: 0; margin-bottom: 25px; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">✏️ 게시글 수정</h2>
+    <form action="/board/boardModifyProc" method="post">
+        <input type="hidden" name="no" value="${board.no}">
+        <input type="hidden" name="category" value="${board.category}">
+        
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600; color: #475569;">제목</label>
+            <input type="text" name="title" class="form-control" value="${board.title}" required>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <label style="font-weight: 600; color: #475569;">내용</label>
+            <textarea name="content" class="form-control" rows="15" required>${board.content}</textarea>
+        </div>
+        
+        <div style="text-align: center; display: flex; gap: 10px; justify-content: center;">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 40px; font-size: 16px;">수정완료</button>
+            <button type="button" onclick="history.back()" class="btn btn-secondary" style="padding: 12px 40px; font-size: 16px;">취소</button>
+        </div>
+    </form>
 </div>
-<c:import url="/footer" />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<c:import url="../default/footer.jsp"/>
