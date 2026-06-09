@@ -3,7 +3,7 @@ package com.care.boot.member;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -72,8 +72,9 @@ public class MemberService {
 		}
 		
 		MemberDTO check = mapper.login(id);
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		if(check != null && encoder.matches(pw, check.getPw()) == true) {
+		//BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		//if(check != null && encoder.matches(pw, check.getPw()) == true) {
+		if(check != null && check.getPw().equals(pw)) {
 			session.setAttribute("id", check.getId());
 			session.setAttribute("userName", check.getUserName());
 			session.setAttribute("address", check.getAddress());
@@ -154,10 +155,13 @@ public class MemberService {
 		if(member.getUserName() == null || member.getUserName().trim().isEmpty()) {
 			return "이름을 입력하세요.";
 		}
+		
 		/* 암호화 과정 */
+		/*
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		String secretPass = encoder.encode(member.getPw());
 		member.setPw(secretPass);
+		*/
 		
 		int result = mapper.updateProc(member);
 		if(result == 1)
