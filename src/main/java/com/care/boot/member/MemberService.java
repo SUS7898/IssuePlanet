@@ -92,24 +92,20 @@ public class MemberService {
 	}
 	public void memberInfo(String select, String search, String cp, Model model) {
 		int currentPage = 1;
-		try{
-			currentPage = Integer.parseInt(cp);
-		}catch(Exception e){
-			currentPage = 1;
-		}
+		try{ currentPage = Integer.parseInt(cp); }catch(Exception e){}
 		
-		if(select == null)
-			select = "";
+		if(select == null) select = "";
 		
-		int pageBlock = 3; // 한 페이지에 보일 데이터의 수 
-		int end = pageBlock * currentPage; // 테이블에서 가져올 마지막 행번호
-		int begin = end - pageBlock + 1; // 테이블에서 가져올 시작 행번호
+		int pageBlock = 3; 
+		int end = pageBlock * currentPage; 
+		int begin = end - pageBlock + 1; 
 		
-		ArrayList<MemberDTO> members = mapper.memberInfo(begin, end, select, search);
+		// [★수정] MariaDB의 LIMIT 처리를 위해 begin은 오프셋(0부터 시작)으로, end는 가져올 갯수로 넘기도록 변경합니다.
+		// (단, member.xml의 쿼리가 LIMIT #{begin}, #{end} 로 작성되어 있어야 합니다.)
+		ArrayList<MemberDTO> members = mapper.memberInfo(begin - 1, pageBlock, select, search);
+		
 		int totalCount = mapper.totalCount(select, search);
-		if(totalCount == 0) {
-			return ;
-		}
+		if(totalCount == 0) return;
 		
 		String url = "memberInfo?select="+select+"&search="+search+"&currentPage=";
 		String result = PageService.printPage(url, totalCount, pageBlock, currentPage);

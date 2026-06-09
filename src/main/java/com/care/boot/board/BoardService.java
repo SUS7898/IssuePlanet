@@ -40,12 +40,11 @@ public class BoardService {
     }
 
     // 게시글 저장 및 파일 업로드 (리눅스 경로로 수정)
+ // 게시글 저장 및 파일 업로드 (리눅스 절대 경로 + 한글/공백 파일명 에러 방지)
     public void boardWriteProc(BoardDTO board, MultipartFile file) {
         if(file != null && !file.isEmpty()) {
             
-            // [★수정] 상대 경로를 버리고 리눅스 서버(Tomcat)의 절대 경로로 강제 지정합니다.
             String uploadPath = "/opt/tomcat/tomcat-10/webapps/uploads/";
-            
             File uploadDir = new File(uploadPath);
             
             // 폴더가 존재하지 않으면 자동으로 생성합니다.
@@ -53,12 +52,24 @@ public class BoardService {
                 uploadDir.mkdirs();
             }
             
-            String fileName = file.getOriginalFilename();
-            File saveFile = new File(uploadDir, fileName);
+            String originalName = file.getOriginalFilename();
+            String extension = "";
+            
+            // 파일의 확장자(.png, .jpg 등)만 추출
+            if(originalName.contains(".")) {
+                extension = originalName.substring(originalName.lastIndexOf("."));
+            }
+            
+            // [★ 핵심] 리눅스 404 에러와 덮어쓰기 방지를 위해 파일명을 고유한 숫자(밀리초)로 변환
+            // 예: "프로젝트 테스트3.png" -> "1717891234567.png"
+            String savedFileName = System.currentTimeMillis() + extension;
+            
+            File saveFile = new File(uploadDir, savedFileName);
             
             try {
                 file.transferTo(saveFile);
-                board.setFileName(fileName); 
+                // DB에도 변환된 안전한 파일명으로 저장
+                board.setFileName(savedFileName); 
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -66,7 +77,7 @@ public class BoardService {
         board.setWriteDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         mapper.boardWriteProc(board);
     }
-
+    
     // 상세 내용 및 댓글 로드
     public void boardContent(int no, Model model) {
         mapper.incHit(no);
