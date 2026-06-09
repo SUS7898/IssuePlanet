@@ -47,14 +47,12 @@ public class MemberController {
     @PostMapping("/loginProc")
     public String loginProc(String id, String pw, Model model, RedirectAttributes ra) {
         String msg = service.loginProc(id, pw);
-        
         if(msg.equals("로그인 성공")) {
             ra.addFlashAttribute("msg", msg);
             return "redirect:/index";
         }
         
-        // [★버그 수정] 실패 시 주소가 /loginProc로 굳어버리는 문제를 방지하기 위해 
-        // FlashAttribute에 메시지를 싣고 /member/login 페이지로 안전하게 리다이렉트 이동시킵니다.
+        // 실패 시 안전하게 리다이렉트하여 URL 왜곡 방지
         ra.addFlashAttribute("msg", msg);
         return "redirect:/member/login";
     }
@@ -67,17 +65,15 @@ public class MemberController {
         return "redirect:/";
     }
 
-    // [복구] 내 정보 보기 조회 (대소문자 호환 경로 설정)
+    // 내 정보 보기 조회 (대소문자 파일명 매칭 보정)
     @RequestMapping("/userInfo")
     public String userInfo(@RequestParam(value="id", required=false) String id, Model model) {
-        // 관리자가 리스트에서 선택했거나, 일반 사용자가 세션 기반으로 접근했을 때 처리
         if (id == null || id.isEmpty()) {
             id = (String) session.getAttribute("id");
         }
         
         String msg = service.userInfo(id, model);
         if (msg.equals("회원 검색 완료")) {
-            // 실제 JSP 파일명 구조인 UserInfo.jsp 대소문자 패턴 매칭 유의
             return "member/userInfo"; 
         }
         
@@ -85,18 +81,17 @@ public class MemberController {
         return "redirect:/index";
     }
 
-    // [복구] 회원 전체 목록 조회 (관리자용)
+    // 회원 전체 목록 조회 (관리자용)
     @RequestMapping("/memberInfo")
     public String memberInfo(@RequestParam(value="select", required=false) String select,
                              @RequestParam(value="search", required=false) String search,
                              @RequestParam(value="currentPage", defaultValue="1") String cp,
                              Model model) {
-        // 서비스 단에 페이징 및 키워드 연동 데이터 위임
         service.memberInfo(select, search, cp, model);
         return "member/memberInfo";
     }
 
-    // [복구] 회원 정보 수정 폼 이동
+    // 회원 정보 수정 폼 이동
     @GetMapping("/update")
     public String update() {
         String sessionId = (String) session.getAttribute("id");
@@ -106,12 +101,11 @@ public class MemberController {
         return "member/update";
     }
 
-    // [복구] 회원 정보 수정 처리 로직
+    // 회원 정보 수정 처리 로직
     @PostMapping("/updateProc")
     public String updateProc(MemberDTO member, Model model, RedirectAttributes ra) {
         String msg = service.updateProc(member);
         if (msg.equals("회원 수정 완료")) {
-            // 수정이 완료되면 세션 정보를 새 닉네임과 주소로 동기화 갱신합니다.
             session.setAttribute("userName", member.getUserName());
             session.setAttribute("address", member.getAddress());
             session.setAttribute("mobile", member.getMobile());
@@ -123,7 +117,7 @@ public class MemberController {
         return "member/update";
     }
 
-    // [복구] 회원 탈퇴 폼 이동
+    // 회원 탈퇴 폼 이동
     @GetMapping("/delete")
     public String delete() {
         String sessionId = (String) session.getAttribute("id");
@@ -133,17 +127,17 @@ public class MemberController {
         return "member/delete";
     }
 
-    // [복구] 회원 탈퇴 처리 로직
+    // 회원 탈퇴 처리 로직
     @PostMapping("/deleteProc")
     public String deleteProc(MemberDTO member, Model model, RedirectAttributes ra) {
         String sessionId = (String) session.getAttribute("id");
         if (sessionId == null) return "redirect:/member/login";
         
-        member.setId(sessionId); // 보안을 위해 세션 아이디 강제 바인딩
+        member.setId(sessionId);
         String msg = service.deleteProc(member);
         
         if (msg.equals("회원 삭제 완료")) {
-            session.invalidate(); // 탈퇴 성공 시 세션 파기
+            session.invalidate();
             ra.addFlashAttribute("msg", msg);
             return "redirect:/index";
         }
