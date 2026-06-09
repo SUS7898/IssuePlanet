@@ -180,8 +180,11 @@ public class MemberService {
 		}
 		
 		MemberDTO check = mapper.login(member.getId());
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		if(check != null && encoder.matches(member.getPw(), check.getPw()) == true) {
+		
+		/* [수정] 회원 탈퇴 시 암호화 비교 대신 일반 문자열 equals 비교로 변경 */
+		// BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		// if(check != null && encoder.matches(member.getPw(), check.getPw()) == true) {
+		if(check != null && check.getPw().equals(member.getPw())) {
 			int result = mapper.deleteProc(member.getId());
 			if(result == 1)
 				return "회원 삭제 완료";
