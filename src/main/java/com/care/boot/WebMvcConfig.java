@@ -6,12 +6,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 웹에서 /uploads/** 로 요청이 들어오면 
-        // 실제 컴퓨터의 D:/Program Files/cording/workspace/IssuePlanet/uploads/ 경로를 찾음
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:///D:/uploads/");
+        // 클라이언트 접근 URL 패턴과 실제 리눅스 물리적 경로 매칭
+        registry.addResourceHandler("/upload/**")
+                .addResourceLocations("file:///opt/tomcat/tomcat-10/webapps/uploads/");
     }
 }
