@@ -47,12 +47,16 @@ public class MemberController {
     @PostMapping("/loginProc")
     public String loginProc(String id, String pw, Model model, RedirectAttributes ra) {
         String msg = service.loginProc(id, pw);
+        
         if(msg.equals("로그인 성공")) {
             ra.addFlashAttribute("msg", msg);
             return "redirect:/index";
         }
-        model.addAttribute("msg", msg);
-        return "member/login";
+        
+        // [★버그 수정] 실패 시 주소가 /loginProc로 굳어버리는 문제를 방지하기 위해 
+        // FlashAttribute에 메시지를 싣고 /member/login 페이지로 안전하게 리다이렉트 이동시킵니다.
+        ra.addFlashAttribute("msg", msg);
+        return "redirect:/member/login";
     }
     
     // 로그아웃 처리 로직
