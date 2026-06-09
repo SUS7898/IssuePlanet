@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-
+	<c:import url="/header"/>
     <c:if test="${not empty msg}">
         <script>alert("${msg}");</script>
     </c:if>
@@ -44,5 +44,6 @@
     </div>
 
     <script src="/dbQuiz.js"></script>
+    	<c:import url="/footer"/>
 </body>
 </html>
