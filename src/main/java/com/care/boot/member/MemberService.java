@@ -150,31 +150,29 @@ public class MemberService {
 		model.addAttribute("member", member);
 		return "회원 검색 완료";
 	}
-	public String updateProc(MemberDTO member) {
-		if(member.getPw() == null || member.getPw().trim().isEmpty()) {
-			return "비밀번호를 입력하세요.";
-		}
-		if(member.getPw().equals(member.getConfirm()) == false) {
-			return "두 비밀번호를 일치하여 입력하세요.";
-		}
-		if(member.getUserName() == null || member.getUserName().trim().isEmpty()) {
-			return "이름을 입력하세요.";
-		}
-		
-		/* 암호화 과정 */
-		/*
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		String secretPass = encoder.encode(member.getPw());
-		member.setPw(secretPass);
-		*/
-		
-		int result = mapper.updateProc(member);
-		if(result == 1)
-			return "회원 수정 완료";
-		
-		return "회원 수정을 다시 시도하세요.";
-	}
-
+	// 회원 정보 수정 서비스 로직 (암호화 기능 주석 처리)
+    public String updateProc(MemberDTO member) {
+        MemberDTO check = mapper.login(member.getId());
+        if(check != null) {
+            
+            // 1. 암호화 객체 생성 부분 주석 처리
+            // BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            
+            // 2. 암호화 매칭(matches) 대신 일반 문자열(평문) 비교로 변경
+            // if(encoder.matches(member.getPw(), check.getPw())) {
+            if(member.getPw() != null && member.getPw().equals(check.getPw())) {
+                
+                // 3. 비밀번호 재암호화해서 세팅하는 부분 주석 처리
+                // member.setPw(encoder.encode(member.getPw()));
+                
+                int result = mapper.updateProc(member);
+                if(result == 1) {
+                    return "회원 수정 완료";
+                }
+            }
+        }
+        return "비밀번호를 확인 후 다시 시도하세요.";
+    }
 
 	public String deleteProc(MemberDTO member) {
 		if(member.getPw() == null || member.getPw().trim().isEmpty()) {

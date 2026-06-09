@@ -2,11 +2,12 @@ package com.care.boot.board;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
+import java.nio.file.Files;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +17,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 @Controller
 @RequestMapping("/board")
 public class BoardController {
 
     @Autowired private BoardService service;
     @Autowired private HttpSession session;
-    // 1. 클래스 상단에 ServletContext 주입 추가
     @Autowired private ServletContext servletContext;
 
     // 게시판 메인 리스트로 이동
@@ -97,21 +93,31 @@ public class BoardController {
         return response;
     }
     
-
-
-    // 2. display 메서드 수정
+    // [★ 핵심 수정] display 메서드의 경로를 실제 파일이 저장된 리눅스 톰캣 절대 경로로 완벽하게 일치시킵니다.
     @GetMapping("/display")
     public ResponseEntity<Resource> display(@RequestParam("fileName") String fileName) {
-        // 저장할 때와 동일하게 프로젝트 루트 기준으로 상위 uploads 폴더를 찾음
-        String projectRoot = System.getProperty("user.dir");
-        File uploadDir = new File(projectRoot, "../uploads");
-        File file = new File(uploadDir, fileName);
         
-        if (!file.exists()) return ResponseEntity.notFound().build();
+        // 업로드 시 지정했던 경로와 정확히 일치하는 리눅스 절대 경로
+        String uploadPath = "/opt/tomcat/tomcat-10/webapps/uploads/";
+        File file = new File(uploadPath, fileName);
+        
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
         
         Resource resource = new FileSystemResource(file);
+        HttpHeaders headers = new HttpHeaders();
+        
+        try {
+            // 브라우저가 png, jpg 등 파일의 포맷을 정확히 인식하여 렌더링하도록 Content-Type 동적 할당
+            String mimeType = Files.probeContentType(file.toPath());
+            headers.add(HttpHeaders.CONTENT_TYPE, mimeType != null ? mimeType : "image/png");
+        } catch (Exception e) {
+            headers.add(HttpHeaders.CONTENT_TYPE, "image/png");
+        }
+        
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "image/png")
+                .headers(headers)
                 .body(resource);
     }
 }

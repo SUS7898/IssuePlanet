@@ -101,11 +101,21 @@ public class MemberController {
         return "member/update";
     }
 
-    // 회원 정보 수정 처리 로직
+ // 회원 정보 수정 처리 로직
     @PostMapping("/updateProc")
-    public String updateProc(MemberDTO member, Model model, RedirectAttributes ra) {
+    public String updateProc(MemberDTO member, RedirectAttributes ra) {
+        String sessionId = (String) session.getAttribute("id");
+        if (sessionId == null) {
+            return "redirect:/member/login";
+        }
+        
+        // [★ 핵심 1] 화면에서 넘어오지 않는 빈 ID 값을 세션 정보로 강제 채워줍니다.
+        member.setId(sessionId);
+
         String msg = service.updateProc(member);
+        
         if (msg.equals("회원 수정 완료")) {
+            // 변경된 정보로 세션을 갱신합니다.
             session.setAttribute("userName", member.getUserName());
             session.setAttribute("address", member.getAddress());
             session.setAttribute("mobile", member.getMobile());
@@ -113,8 +123,10 @@ public class MemberController {
             ra.addFlashAttribute("msg", msg);
             return "redirect:/index";
         }
-        model.addAttribute("msg", msg);
-        return "member/update";
+        
+        // [★ 핵심 2] 실패 시 URL 왜곡으로 인한 에러가 나지 않도록 리다이렉트 시킵니다.
+        ra.addFlashAttribute("msg", msg);
+        return "redirect:/member/update";
     }
 
     // 회원 탈퇴 폼 이동
