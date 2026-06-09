@@ -36,9 +36,11 @@ public class MemberService {
 		}
 		
 		/* 암호화 과정 */
+		/*
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		String secretPass = encoder.encode(member.getPw());
 		member.setPw(secretPass);
+		*/
 		/*
 			암호문 : $2a$10$HJ3CfbI4MxDDSM3emVsuNudQyQE5StjV7g/UGK2vSQZQRmGy23OXi
 			암호문 길이: 60
@@ -50,8 +52,8 @@ public class MemberService {
 			ALTER TABLE db_quiz MODIFY pw varchar2(60);
 			COMMIT;
 		 */
-		System.out.println("암호문 : " + secretPass);
-		System.out.println("암호문 길이: " + secretPass.length());
+		//System.out.println("암호문 : " + secretPass);
+		//System.out.println("암호문 길이: " + secretPass.length());
 		
 		int result = mapper.registProc(member);
 		if(result == 1)
