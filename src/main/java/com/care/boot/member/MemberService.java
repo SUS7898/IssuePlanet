@@ -130,9 +130,15 @@ public class MemberService {
 		}
 		
 		MemberDTO member = mapper.login(id);
+		
+		/* [★500 에러 방지용 안전장치 추가] */
+		/* 탈퇴한 회원이거나 세션 정보가 DB와 불일치하여 member가 null인 경우 예외 처리 */
+		if (member == null) {
+			return "존재하지 않는 회원 정보입니다.";
+		}
+		
 		if(member.getAddress() != null && member.getAddress().isEmpty() == false) {
 			String[] address = member.getAddress().split(",");
-//			System.out.println(address.length);
 			if(address.length >= 2) {
 				model.addAttribute("postcode", address[0]);
 				member.setAddress(address[1]);
@@ -144,7 +150,6 @@ public class MemberService {
 		model.addAttribute("member", member);
 		return "회원 검색 완료";
 	}
-
 	public String updateProc(MemberDTO member) {
 		if(member.getPw() == null || member.getPw().trim().isEmpty()) {
 			return "비밀번호를 입력하세요.";
