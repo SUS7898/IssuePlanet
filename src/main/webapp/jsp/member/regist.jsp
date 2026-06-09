@@ -5,6 +5,12 @@
 <div class="container" style="max-width: 600px;">
     <h2 style="text-align: center; color: #1e293b; margin-bottom: 30px;">회원가입</h2>
     
+    <c:if test="${not empty msg}">
+        <div style="color: #f7768e; text-align: center; font-weight: bold; margin-bottom: 20px;">
+            ${msg}
+        </div>
+    </c:if>
+    
     <form action="/member/registProc" method="post">
         <div style="margin-bottom: 15px;">
             <label style="font-weight: 600; color: #475569;">아이디</label>
@@ -14,9 +20,15 @@
             <label style="font-weight: 600; color: #475569;">비밀번호</label>
             <input type="password" name="pw" class="form-control" required>
         </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: 600; color: #475569;">비밀번호 확인</label>
+            <input type="password" name="confirm" class="form-control" required>
+        </div>
+        
         <div style="margin-bottom: 15px;">
             <label style="font-weight: 600; color: #475569;">이름(닉네임)</label>
-            <input type="text" name="username" class="form-control" required>
+            <input type="text" name="userName" class="form-control" required>
         </div>
         <div style="margin-bottom: 15px;">
             <label style="font-weight: 600; color: #475569;">전화번호</label>
@@ -30,7 +42,7 @@
                 <button type="button" class="btn btn-secondary">우편번호 찾기</button>
             </div>
             <input type="text" name="address" class="form-control" placeholder="기본 주소" style="margin-bottom: 8px;">
-            <input type="text" name="detailaddress" class="form-control" placeholder="상세 주소">
+            <input type="text" name="detailAddress" class="form-control" placeholder="상세 주소">
         </div>
 
         <div style="text-align: center; margin-top: 30px;">

@@ -29,8 +29,8 @@ public class MemberController {
         
         if(msg.equals("회원 등록 완료")) {
             ra.addFlashAttribute("msg", msg);
-            // "redirect:index" 대신 "redirect:/"를 사용하여 최상위 메인 루트 페이지로 이동시킵니다.
-            return "redirect:/"; 
+            // 수정: "redirect:/" -> "redirect:/index"
+            return "redirect:/index"; 
         }
         
         model.addAttribute("msg", msg);
@@ -49,8 +49,8 @@ public class MemberController {
         String msg = service.loginProc(id, pw);
         if(msg.equals("로그인 성공")) {
             ra.addFlashAttribute("msg", msg);
-            // 로그인 성공 시에도 똑같이 메인 루트 페이지로 안전하게 이동시킵니다.
-            return "redirect:/";
+            // 수정: "redirect:/" -> "redirect:/index"
+            return "redirect:/index";
         }
         model.addAttribute("msg", msg);
         return "member/login";
