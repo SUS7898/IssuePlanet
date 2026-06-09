@@ -20,7 +20,17 @@
             
             <div class="mb-4">
                 <label style="font-weight: 600; color: #475569;">현재 비밀번호 <span style="color: #ef4444;">*</span></label>
-                <input type="password" name="pw" class="form-control" placeholder="본인 확인을 위해 비밀번호를 입력해주세요" required>
+                <input type="password" name="pw" class="form-control" placeholder="본인 확인을 위해 현재 비밀번호를 입력해주세요" required>
+            </div>
+
+            <div class="mb-4">
+                <label style="font-weight: 600; color: #475569;">새 비밀번호 (변경 시에만 입력)</label>
+                <input type="password" name="newPw" class="form-control" placeholder="변경할 새 비밀번호를 입력하세요">
+            </div>
+
+            <div class="mb-4">
+                <label style="font-weight: 600; color: #475569;">새 비밀번호 확인</label>
+                <input type="password" name="confirmNewPw" class="form-control" placeholder="새 비밀번호를 한번 더 입력하세요">
             </div>
 
             <div class="mb-4">

@@ -102,20 +102,23 @@ public class MemberController {
     }
 
  // 회원 정보 수정 처리 로직
+ // 회원 정보 수정 처리 로직 (새 비밀번호 파라미터 수집 추가)
     @PostMapping("/updateProc")
-    public String updateProc(MemberDTO member, RedirectAttributes ra) {
+    public String updateProc(MemberDTO member, 
+                             @RequestParam(value="newPw", required=false) String newPw,
+                             @RequestParam(value="confirmNewPw", required=false) String confirmNewPw,
+                             RedirectAttributes ra) {
         String sessionId = (String) session.getAttribute("id");
         if (sessionId == null) {
             return "redirect:/member/login";
         }
         
-        // [★ 핵심 1] 화면에서 넘어오지 않는 빈 ID 값을 세션 정보로 강제 채워줍니다.
         member.setId(sessionId);
 
-        String msg = service.updateProc(member);
+        // 서비스 레이어로 새 비밀번호 데이터들까지 함께 전달합니다.
+        String msg = service.updateProc(member, newPw, confirmNewPw);
         
         if (msg.equals("회원 수정 완료")) {
-            // 변경된 정보로 세션을 갱신합니다.
             session.setAttribute("userName", member.getUserName());
             session.setAttribute("address", member.getAddress());
             session.setAttribute("mobile", member.getMobile());
@@ -124,7 +127,6 @@ public class MemberController {
             return "redirect:/index";
         }
         
-        // [★ 핵심 2] 실패 시 URL 왜곡으로 인한 에러가 나지 않도록 리다이렉트 시킵니다.
         ra.addFlashAttribute("msg", msg);
         return "redirect:/member/update";
     }

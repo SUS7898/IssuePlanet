@@ -146,12 +146,10 @@ public class MemberService {
 		model.addAttribute("member", member);
 		return "회원 검색 완료";
 	}
-	// 회원 정보 수정 서비스 로직 (암호화 기능 주석 처리)
-    public String updateProc(MemberDTO member) {
-        MemberDTO check = mapper.login(member.getId());
-        if(check != null) {
-            
-            // 1. 암호화 객체 생성 부분 주석 처리
+
+	// 회원 정보 수정 서비스 로직 (비밀번호 변경 대응 및 암호화 주석 처리)
+	/*
+	 // 1. 암호화 객체 생성 부분 주석 처리
             // BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             
             // 2. 암호화 매칭(matches) 대신 일반 문자열(평문) 비교로 변경
@@ -160,6 +158,26 @@ public class MemberService {
                 
                 // 3. 비밀번호 재암호화해서 세팅하는 부분 주석 처리
                 // member.setPw(encoder.encode(member.getPw()));
+	 */
+    public String updateProc(MemberDTO member, String newPw, String confirmNewPw) {
+        MemberDTO check = mapper.login(member.getId());
+        if(check != null) {
+            
+            // 1. 현재 비밀번호가 일치하는지 본인 확인 (평문 비교)
+            if(member.getPw() != null && member.getPw().equals(check.getPw())) {
+                
+                // 2. 새 비밀번호 칸이 입력되었는지 검사
+                if(newPw != null && !newPw.trim().isEmpty()) {
+                    // 새 비밀번호와 새 비밀번호 확인 값이 일치하지 않는 경우 거부
+                    if(!newPw.equals(confirmNewPw)) {
+                        return "새 비밀번호가 서로 일치하지 않습니다.";
+                    }
+                    // 일치한다면 DTO의 pw를 새 비밀번호로 교체하여 DB로 전송 준비
+                    member.setPw(newPw);
+                } else {
+                    // 새 비밀번호를 입력하지 않았다면 기존 비밀번호를 그대로 유지
+                    member.setPw(check.getPw());
+                }
                 
                 int result = mapper.updateProc(member);
                 if(result == 1) {
@@ -167,7 +185,7 @@ public class MemberService {
                 }
             }
         }
-        return "비밀번호를 확인 후 다시 시도하세요.";
+        return "현재 비밀번호를 확인 후 다시 시도하세요.";
     }
 
 	public String deleteProc(MemberDTO member) {
