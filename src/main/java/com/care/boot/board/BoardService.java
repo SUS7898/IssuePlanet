@@ -10,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.servlet.ServletContext; // 추가
-import org.springframework.beans.factory.annotation.Autowired; // 기존
+import jakarta.servlet.ServletContext;
+
 @Service
 public class BoardService {
 
     @Autowired private BoardMapper mapper;
-    @Autowired private ServletContext servletContext; // 추가: 프로젝트 경로를 알기 위해 필요
+    @Autowired private ServletContext servletContext;
 
     // 카테고리별 페이징 처리 리스트
     public void boardForm(String cp, String category, Model model) {
@@ -39,15 +39,16 @@ public class BoardService {
         model.addAttribute("totalCount", totalCount);
     }
 
-    // 게시글 저장
+    // 게시글 저장 및 파일 업로드 (리눅스 경로로 수정)
     public void boardWriteProc(BoardDTO board, MultipartFile file) {
         if(file != null && !file.isEmpty()) {
-            // 1. 현재 실행 중인 프로젝트 루트 경로를 시스템에서 자동으로 가져옴
-            String projectRoot = System.getProperty("user.dir");
             
-            // 2. 프로젝트 폴더의 바로 상위 폴더에 uploads 폴더 지정
-            File uploadDir = new File(projectRoot, "../uploads");
+            // [★수정] 상대 경로를 버리고 리눅스 서버(Tomcat)의 절대 경로로 강제 지정합니다.
+            String uploadPath = "/opt/tomcat/tomcat-10/webapps/uploads/";
             
+            File uploadDir = new File(uploadPath);
+            
+            // 폴더가 존재하지 않으면 자동으로 생성합니다.
             if(!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
@@ -65,6 +66,7 @@ public class BoardService {
         board.setWriteDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         mapper.boardWriteProc(board);
     }
+
     // 상세 내용 및 댓글 로드
     public void boardContent(int no, Model model) {
         mapper.incHit(no);
