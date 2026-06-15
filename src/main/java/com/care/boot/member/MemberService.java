@@ -71,6 +71,12 @@ public class MemberService {
 			return "비밀번호를 입력하세요.";
 		}
 		
+		// [보안 조치] 1 & 3. 사용자 입력값(id)에 대해 영문과 숫자만 허용하는 화이트리스트 검증 및 특수문자 제거
+		// 정규식을 만족하지 않거나 ID에 특수문자/공백이 포함된 경우 진입을 차단합니다.
+		if (!id.matches("^[a-zA-Z0-9]+$")) {
+			return "아이디는 영문자와 숫자만 입력 가능합니다.";
+		}
+		
 		MemberDTO check = mapper.login(id);
 		//BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		//if(check != null && encoder.matches(pw, check.getPw()) == true) {
@@ -89,8 +95,7 @@ public class MemberService {
 		}
 		
 		return "아이디 또는 비밀번호를 확인 후 다시 입력하세요.";
-	}
-	public void memberInfo(String select, String search, String cp, Model model) {
+	}	public void memberInfo(String select, String search, String cp, Model model) {
 		int currentPage = 1;
 		try{ currentPage = Integer.parseInt(cp); }catch(Exception e){}
 		
