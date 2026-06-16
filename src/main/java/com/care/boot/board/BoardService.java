@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.ServletContext;
 
+import org.springframework.web.util.HtmlUtils;
+
 @Service
 public class BoardService {
 
@@ -42,7 +44,17 @@ public class BoardService {
     // 게시글 저장 및 파일 업로드 (리눅스 경로로 수정)
  // 게시글 저장 및 파일 업로드 (리눅스 절대 경로 + 한글/공백 파일명 에러 방지)
     public void boardWriteProc(BoardDTO board, MultipartFile file) {
-        if(file != null && !file.isEmpty()) {
+    	// =======================================================
+        // [보안 조치] Spring 내장 유틸을 이용한 XSS 필터링 처리 (버전 충돌 없음)
+        // =======================================================
+        if (board.getContent() != null) {
+            // <script>alert(1);</script> 단어를 &lt;script&gt; 형태로 안전하게 이스케이프 변환합니다.
+            String cleanContent = HtmlUtils.htmlEscape(board.getContent());
+            board.setContent(cleanContent);
+        }
+        // =======================================================
+    	
+    	if(file != null && !file.isEmpty()) {
             
             String uploadPath = "/opt/tomcat/tomcat-10/webapps/uploads/";
             File uploadDir = new File(uploadPath);

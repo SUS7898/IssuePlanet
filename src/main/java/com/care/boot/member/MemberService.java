@@ -95,7 +95,10 @@ public class MemberService {
 		}
 		
 		return "아이디 또는 비밀번호를 확인 후 다시 입력하세요.";
-	}	public void memberInfo(String select, String search, String cp, Model model) {
+	}	
+		
+		public void memberInfo(String select, String search, String cp, Model model) {
+			
 		int currentPage = 1;
 		try{ currentPage = Integer.parseInt(cp); }catch(Exception e){}
 		
