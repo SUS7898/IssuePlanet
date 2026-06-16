@@ -44,11 +44,26 @@ public class BoardController {
 
     // 글 등록 처리
     @PostMapping("/boardWriteProc")
-    public String boardWriteProc(BoardDTO board, @RequestParam("file") MultipartFile file) {
+    public String boardWriteProc(BoardDTO board, @RequestParam("file") MultipartFile file, 
+                                 HttpSession session, RedirectAttributes ra) {
+        // 1. 세션에서 로그인된 사용자 ID 추출 및 검증
         String id = (String) session.getAttribute("id");
         if(id == null) return "redirect:/member/login";
         board.setId(id);
-        service.boardWriteProc(board, file);
+        
+        try {
+            // 2. 서비스 단의 비즈니스 로직 및 확장자 화이트리스트 필터링 수행
+            service.boardWriteProc(board, file);
+            ra.addFlashAttribute("msg", "게시글이 등록되었습니다.");
+            
+        } catch (IllegalArgumentException e) {
+            // 3. [보안 조치] 허용되지 않은 악성 파일(.jsp 등) 업로드 예외 발생 시 안전하게 가로챔
+            ra.addFlashAttribute("msg", e.getMessage()); // "이미지 파일(.png, .jpg, .jpeg, .gif)만 업로드 가능합니다."
+            
+            // 악성 파일이 저장되지 않고, 글쓰기 양식 폼으로 안전하게 리다이렉트
+            return "redirect:/board/boardWrite"; 
+        }
+        
         return "redirect:/board/boardForm?category=" + board.getCategory();
     }
 
