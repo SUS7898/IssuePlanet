@@ -142,18 +142,31 @@ public class MemberService {
 		MemberDTO check = mapper.login(id);
 		// BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		// if(check != null && encoder.matches(pw, check.getPw()) == true) {
-		if (check != null && check.getPw().equals(pw)) {
-
+if(check != null && check.getPw().equals(pw)) {
+			
 			// =========================================================================
-			// [보안 조치] 세션 고정(Session Fixation) 방지를 위한 세션 ID 즉시 갱신 (톰캣 JSESSIONID 활용)
+			// [보안 조치] 세션 고정(Session Fixation) 방지를 위한 안전한 세션 ID 즉시 갱신
 			// =========================================================================
-			// 1. 기존에 로그인 전에 발급되었거나 취약한 평문 데이터가 남아있을 수 있는 세션을 완전히 무효화(삭제)합니다.
-			session.invalidate();
-
-
-			org.springframework.web.context.request.ServletRequestAttributes attributes = (org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
-					.currentRequestAttributes();
-			session = attributes.getRequest().getSession(true);
+			// 현재 요청(Request) 객체를 안전하게 꺼내옵니다.
+			org.springframework.web.context.request.ServletRequestAttributes attributes = 
+				(org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes();
+			jakarta.servlet.http.HttpServletRequest request = attributes.getRequest();
+			
+			// 현재 요청에 매핑된 세션이 있는지 확인합니다. (false로 주면 없을 때 null 리턴)
+			jakarta.servlet.http.HttpSession currentSession = request.getSession(false);
+			
+			if (currentSession != null) {
+				try {
+					// 세션이 존재하고 살아있는 상태일 때만 무효화 처리를 시도합니다.
+					currentSession.invalidate(); 
+				} catch (IllegalStateException e) {
+					// 이미 타 필터에 의해 만료된 상태라면 예외를 무시하고 다음 단계로 자연스럽게 넘어갑니다.
+					System.out.println("세션이 이미 만료되어 invalidate를 건너뜁니다.");
+				}
+			}
+			
+			// 톰캣 엔진에게 완벽한 암호학적 난수로 이루어진 새 세션(JSESSIONID)을 강제로 다시 발급받아 주입합니다.
+			session = request.getSession(true);
 			// =========================================================================
 
 			session.setAttribute("id", check.getId());
