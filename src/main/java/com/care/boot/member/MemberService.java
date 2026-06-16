@@ -30,10 +30,65 @@ public class MemberService {
 			return "이름을 입력하세요.";
 		}
 		
+		// [보안 추가] 아이디 유효성 검증 (위험한 특수문자를 제외한 하이픈, 언더바, 마침표, 골뱅이만 허용)
+		if (!member.getId().matches("^[a-zA-Z0-9_\\-.@]+$")) {
+			return "아이디는 영문자, 숫자, 특수문자(_, -, ., @)만 입력 가능합니다.";
+		}
+		
 		MemberDTO check = mapper.login(member.getId());
 		if(check != null) {
 			return "이미 사용중인 아이디 입니다.";
 		}
+		
+		// =========================================================================
+		// [Step 1] KISA 규정: 비밀번호 복잡성 및 길이 검증
+		// =========================================================================
+		String pw = member.getPw();
+		int pwLength = pw.length();
+		
+		int typesCount = 0;
+		if (pw.matches(".*[A-Z].*")) typesCount++; // (1) 영문 대문자 포함
+		if (pw.matches(".*[a-z].*")) typesCount++; // (2) 영문 소문자 포함
+		if (pw.matches(".*[0-9].*")) typesCount++; // (3) 숫자 포함
+		if (pw.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?~`|\\\\].*")) typesCount++; // (4) 특수문자 포함
+
+		// 조건: 2종류 조합 시 10자리 이상 OR 3종류 이상 조합 시 8자리 이상
+		boolean isValidLength = false;
+		if (typesCount >= 3 && pwLength >= 8) {
+			isValidLength = true;
+		} else if (typesCount == 2 && pwLength >= 10) {
+			isValidLength = true;
+		}
+		
+		if (!isValidLength) {
+			return "비밀번호는 2종류 문자 조합 시 최소 10자리 이상, 3종류 이상 조합 시 최소 8자리 이상이어야 합니다.";
+		}
+		
+		// =========================================================================
+		// [Step 2] KISA 규정: 추측하기 쉬운 패스워드 제한 (아이디 유사성 및 연속성 검증)
+		// =========================================================================
+		// ① 아이디와 비슷한 비밀번호 사용 금지
+		if (pw.contains(member.getId())) {
+			return "비밀번호에 아이디를 포함할 수 없습니다.";
+		}
+		
+		// ② 연속적인 숫자나 문자 제한 (4자리 연속 패턴 차단: 예: 1234, abcd, 4321)
+		for (int i = 0; i < pwLength - 3; i++) {
+			char c1 = pw.charAt(i);
+			char c2 = pw.charAt(i + 1);
+			char c3 = pw.charAt(i + 2);
+			char c4 = pw.charAt(i + 3);
+			
+			// 순방향 연속성 검사 (1234, abcd 등)
+			if (c2 - c1 == 1 && c3 - c2 == 1 && c4 - c3 == 1) {
+				return "비밀번호에 연속된 문자나 숫자를 사용할 수 없습니다.";
+			}
+			// 역방향 연속성 검사 (4321, dcba 등)
+			if (c1 - c2 == 1 && c2 - c3 == 1 && c3 - c4 == 1) {
+				return "비밀번호에 연속된 문자나 숫자를 사용할 수 없습니다.";
+			}
+		}
+		// =========================================================================
 		
 		/* 암호화 과정 */
 		/*
@@ -73,8 +128,8 @@ public class MemberService {
 		
 		// [보안 조치] 1 & 3. 사용자 입력값(id)에 대해 영문과 숫자만 허용하는 화이트리스트 검증 및 특수문자 제거
 		// 정규식을 만족하지 않거나 ID에 특수문자/공백이 포함된 경우 진입을 차단합니다.
-		if (!id.matches("^[a-zA-Z0-9]+$")) {
-			return "아이디는 영문자와 숫자만 입력 가능합니다.";
+		if (!id.matches("^[a-zA-Z0-9_\\-.@]+$")) {
+		    return "아이디는 영문자, 숫자, 특수문자(_, -, ., @)만 입력 가능합니다.";
 		}
 		
 		MemberDTO check = mapper.login(id);
