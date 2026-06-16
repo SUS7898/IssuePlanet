@@ -68,12 +68,23 @@ public class BoardService {
             String extension = "";
             
             // 파일의 확장자(.png, .jpg 등)만 추출
-            if(originalName.contains(".")) {
-                extension = originalName.substring(originalName.lastIndexOf("."));
+            if(originalName != null && originalName.contains(".")) {
+                extension = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
+            } else {
+                throw new IllegalArgumentException("올바르지 않은 파일 형식입니다.");
             }
             
+            // =========================================================================
+            // [보안 추가] 화이트리스트 방식 이미지 확장자 제한 필터링
+            // =========================================================================
+            // 추출한 확장자가 허용된 이미지 포맷이 아니라면 서버 저장을 거부하고 강제 종료합니다.
+            if (!extension.equals(".png") && !extension.equals(".jpg") && !extension.equals(".jpeg") && !extension.equals(".gif")) {
+                System.out.println("[보안 경고] 허용되지 않은 확장자 업로드 시도 차단: " + originalName);
+                throw new IllegalArgumentException("이미지 파일(.png, .jpg, .jpeg, .gif)만 업로드 가능합니다.");
+            }
+            // =========================================================================
+            
             // [★ 핵심] 리눅스 404 에러와 덮어쓰기 방지를 위해 파일명을 고유한 숫자(밀리초)로 변환
-            // 예: "프로젝트 테스트3.png" -> "1717891234567.png"
             String savedFileName = System.currentTimeMillis() + extension;
             
             File saveFile = new File(uploadDir, savedFileName);
@@ -88,8 +99,7 @@ public class BoardService {
         }
         board.setWriteDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         mapper.boardWriteProc(board);
-    }
-    
+    }    
     // 상세 내용 및 댓글 로드
     public void boardContent(int no, Model model) {
         mapper.incHit(no);
