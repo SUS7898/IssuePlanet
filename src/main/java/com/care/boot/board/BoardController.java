@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -52,17 +53,27 @@ public class BoardController {
     }
 
     // 본문 상세보기 (좋아요 유무 체크 바인딩)
-    @GetMapping("/boardContent")
-    public String boardContent(@RequestParam("no") int no, Model model, HttpSession session) {
-        service.boardContent(no, model);
-        
-        String id = (String) session.getAttribute("id");
-        if(id != null) {
-            boolean isLiked = service.checkLike(no, id);
-            model.addAttribute("isLiked", isLiked);
-        }
-        return "board/boardContent";
-    }
+    @RequestMapping("/boardContent")
+	public String boardContent(@RequestParam("no") int no, Model model, HttpSession session, RedirectAttributes ra) {
+		// =======================================================
+		// [보안 조치] 비로그인 유저의 게시글 열람 제한 추가
+		// =======================================================
+		String sessionId = (String) session.getAttribute("id");
+		if (sessionId == null || sessionId.isEmpty()) {
+			ra.addFlashAttribute("msg", "로그인 후 이용 가능합니다.");
+			return "redirect:/member/login"; // 로그인 페이지로 강제 이동
+		}
+		// =======================================================
+		
+		// 1. 숫자형(int no) 파라미터를 사용하여 서비스의 게시글 상세 로직 호출
+		service.boardContent(no, model);
+		
+		// 2. 실제 BoardService에 정의된 checkLike 메서드를 사용하여 좋아요 유무 체크 후 바인딩
+		boolean isLiked = service.checkLike(no, sessionId);
+		model.addAttribute("isLiked", isLiked);
+		
+		return "board/boardContent";
+	}
 
     // 댓글 저장 라우터
     @PostMapping("/replyWrite")

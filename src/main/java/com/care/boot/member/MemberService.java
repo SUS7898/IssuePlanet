@@ -35,6 +35,12 @@ public class MemberService {
 			return "아이디는 영문자, 숫자, 특수문자(_, -, ., @)만 입력 가능합니다.";
 		}
 		
+		// [보안 추가] 아이디 길이 검증 (최소 5자리 이상 20자리 이하로 설정 예시)
+		int idLength = member.getId().length();
+		if (idLength < 5 || idLength > 20) {
+			return "아이디는 5자리 이상 20자리 이하로 입력해주세요.";
+		}
+		
 		MemberDTO check = mapper.login(member.getId());
 		if(check != null) {
 			return "이미 사용중인 아이디 입니다.";
