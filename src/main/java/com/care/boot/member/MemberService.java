@@ -150,9 +150,7 @@ public class MemberService {
 			// 1. 기존에 로그인 전에 발급되었거나 취약한 평문 데이터가 남아있을 수 있는 세션을 완전히 무효화(삭제)합니다.
 			session.invalidate();
 
-			// 2. 컨트롤러 등 상위 스코프에 묶여있는 RequestContextHolder나 Http Request 서블릿 객체를 통해
-			// 톰캣 커넥터단에서 완전한 암호학적 난수로 이루어진 새 세션(JSESSIONID)을 강제로 다시 발급받습니다.
-			// (현재 주입되어 사용 중인 세션 변수를 새로 생성된 안전한 세션 객체로 스위칭합니다.)
+
 			org.springframework.web.context.request.ServletRequestAttributes attributes = (org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
 					.currentRequestAttributes();
 			session = attributes.getRequest().getSession(true);
