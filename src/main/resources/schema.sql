@@ -1,3 +1,9 @@
+-- ==========================================
+-- IssuePlanet schema
+-- - 모든 테이블 InnoDB + utf8mb4/utf8mb4_unicode_ci 로 통일 (FK 문자셋 일치 보장)
+-- - CREATE TABLE IF NOT EXISTS 라 재실행(재배포)해도 안전(멱등)
+-- ==========================================
+
 -- 1. 회원 테이블
 CREATE TABLE IF NOT EXISTS member (
     id            VARCHAR(20),
