@@ -4,7 +4,7 @@
 <div class="container" style="text-align: center; padding: 60px 20px;">
     <h1 style="color: #1e293b; font-size: 36px; margin-bottom: 10px;">🪐 Welcome to IssuePlanet!</h1>
     <p style="color: #64748b; font-size: 18px; margin-bottom: 40px;">
-        가장 빠르고 핫한 연예계 트렌드 & 이슈 커뮤니티에 오신 것을 환영합니다.(수정 테스트)
+        가장 빠르고 핫한 연예계 트렌드 & 이슈 커뮤니티에 오신 것을 환영합니다.(GitOps 테스트)
     </p>
     
     <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
