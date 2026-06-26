@@ -1,0 +1,25 @@
+{
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/opt/tomcat/tomcat-10/logs/catalina.out",
+            "log_group_name": "/web-secure/tomcat-logs",
+            "log_stream_name": "{instance_id}"
+          },
+          {
+            "file_path": "/var/log/gitops-deploy.log",
+            "log_group_name": "/web-secure/gitops",
+            "log_stream_name": "{instance_id}"
+          },
+          {
+            "file_path": "/var/log/messages",
+            "log_group_name": "/web-secure/syslog",
+            "log_stream_name": "{instance_id}"
+          }
+        ]
+      }
+    }
+  }
+}
